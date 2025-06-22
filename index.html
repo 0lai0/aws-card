@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡片式學習系統</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- 全域樣式 -->
+    <link rel="stylesheet" href="src/styles/global.css">
+    
+    <!-- 外部函式庫 -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 按順序載入模組化檔案 -->
+    <!-- 工具函數和常數 -->
+    <script type="text/babel" src="src/utils/constants.js"></script>
+    <script type="text/babel" src="src/utils/sm2Algorithm.js"></script>
+    <script type="text/babel" src="src/utils/projectUtils.js"></script>
+    <script type="text/babel" src="src/utils/chartUtils.js"></script>
+
+    <!-- 自定義 Hooks -->
+    <script type="text/babel" src="src/hooks/useKeyboardEvents.js"></script>
+    <script type="text/babel" src="src/hooks/useProjects.js"></script>
+    <script type="text/babel" src="src/hooks/useLearning.js"></script>
+
+    <!-- 組件 -->
+    <script type="text/babel" src="src/components/CardListItem.js"></script>
+    <script type="text/babel" src="src/components/Navigation.js"></script>
+    <script type="text/babel" src="src/components/ProjectsView.js"></script>
+    <script type="text/babel" src="src/components/LearnView.js"></script>
+    <script type="text/babel" src="src/components/ManageView.js"></script>
+    <script type="text/babel" src="src/components/StatsView.js"></script>
+
+    <!-- 主要應用程式 -->
+    <script type="text/babel" src="src/App.js"></script>
+
+    <!-- 渲染應用程式 -->
+    <script type="text/babel">
+        // 簡單版本的 App 來測試基本功能
+        const SimpleApp = () => {
+            return React.createElement('div', {
+                className: "min-h-screen bg-gray-50 p-8"
+            }, [
+                React.createElement('div', {
+                    className: "max-w-4xl mx-auto",
+                    key: "container"
+                }, [
+                    React.createElement('h1', {
+                        className: "text-4xl font-bold text-center text-gray-900 mb-8",
+                        key: "title"
+                    }, '📚 卡片式學習系統'),
+                    React.createElement('div', {
+                        className: "card p-8 text-center",
+                        key: "content"
+                    }, [
+                        React.createElement('p', {
+                            className: "text-xl text-gray-700 mb-4",
+                            key: "status"
+                        }, '✅ 系統載入成功！'),
+                        React.createElement('p', {
+                            className: "text-gray-600",
+                            key: "desc"
+                        }, '這表示 React 和基本 CSS 都正常工作。')
+                    ])
+                ])
+            ]);
+        };
+        
+        // 渲染簡化版應用程式
+        const { createRoot } = ReactDOM;
+        const root = createRoot(document.getElementById('root'));
+        
+        // 檢查是否有完整的 App 組件
+        if (typeof window.App === 'function') {
+            console.log('載入完整版 App');
+            root.render(React.createElement(window.App));
+        } else {
+            console.log('載入簡化版 App - 某些組件或 hooks 可能未正確載入');
+            root.render(React.createElement(SimpleApp));
+        }
+    </script>
+</body>
+</html>
