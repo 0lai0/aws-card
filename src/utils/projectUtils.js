@@ -9,15 +9,47 @@ window.createProject = (name, description) => {
   };
 };
 
-// 創建默認 AWS 專案
+// 創建默認 AWS 專案（向後相容性）
 window.createDefaultProject = () => {
-  return {
-    id: Date.now().toString(),
-    name: 'AWS 認證學習',
-    description: 'AWS 服務相關知識',
-    cards: window.initialAwsCards,
-    createdAt: new Date().toISOString()
-  };
+  console.log('createDefaultProject: 開始創建預設專案');
+  
+  // 檢查 DatasetManager 是否可用
+  if (!window.DatasetManager) {
+    console.error('createDefaultProject: DatasetManager 未載入');
+    return null;
+  }
+  
+  try {
+    const project = window.DatasetManager.createProjectFromDataset('aws');
+    console.log('createDefaultProject: 成功創建專案，卡片數量:', project?.cards?.length || 0);
+    return project;
+  } catch (error) {
+    console.error('createDefaultProject: 創建專案失敗:', error);
+    
+    // 回退方案：直接使用 awsCardsData
+    if (window.awsCardsData && window.awsCardsData.length > 0) {
+      console.log('createDefaultProject: 使用回退方案，直接載入 awsCardsData');
+      return {
+        id: Date.now().toString(),
+        name: 'AWS 認證學習',
+        description: 'AWS 服務相關知識',
+        cards: window.initializeCards(window.awsCardsData),
+        createdAt: new Date().toISOString()
+      };
+    }
+    
+    return null;
+  }
+};
+
+// 創建基於資料集的專案
+window.createProjectFromDataset = (datasetId) => {
+  return window.DatasetManager.createProjectFromDataset(datasetId);
+};
+
+// 取得可用的資料集模板
+window.getAvailableDatasets = () => {
+  return window.DatasetManager.getAvailableDatasets();
 };
 
 // 匯出專案 JSON

@@ -44,35 +44,47 @@ window.calculateNextReview = (card, hasRemembered) => {
 // 過濾和排序要學習的卡片
 window.getCardsToLearn = (cards) => {
   const today = new Date().toISOString().split('T')[0];
+  console.log('getCardsToLearn: 篩選卡片，今天日期:', today);
+  console.log('getCardsToLearn: 輸入卡片數量:', cards.length);
   
-  return cards
-    .filter(card => {
-      // 新卡片（沒有 SM2 數據或還沒開始學習）
-      if (!card.sm2 || card.sm2.repetitions === 0) {
-        return true;
-      }
-      
-      // 已學習的卡片，檢查是否到期
-      const isDue = card.sm2.dueDate <= today;
-      return isDue;
-    })
-    .sort((a, b) => {
-      // 新卡片優先（repetitions = 0）
-      const aIsNew = !a.sm2 || a.sm2.repetitions === 0;
-      const bIsNew = !b.sm2 || b.sm2.repetitions === 0;
-      
-      if (aIsNew && !bIsNew) return -1;
-      if (!aIsNew && bIsNew) return 1;
-      
-      // 如果都是學習過的卡片，優先顯示需要複習的卡片（忘記的）
-      if (!aIsNew && !bIsNew) {
-        if (a.sm2.isMistake && !b.sm2.isMistake) return -1;
-        if (!a.sm2.isMistake && b.sm2.isMistake) return 1;
-        return new Date(a.sm2.dueDate).getTime() - new Date(b.sm2.dueDate).getTime();
-      }
-      
-      return 0; // 都是新卡片時保持原順序
-    });
+  const filtered = cards.filter(card => {
+    // 新卡片（沒有 SM2 數據或還沒開始學習）
+    if (!card.sm2 || card.sm2.repetitions === 0) {
+      console.log('新卡片:', card.question);
+      return true;
+    }
+    
+    // 已學習的卡片，檢查是否到期
+    const dueDate = card.sm2.dueDate;
+    if (!dueDate) return true; // 沒有到期日的卡片視為需要學習
+    
+    const isDue = dueDate <= today;
+    console.log(`卡片 "${card.question}": 到期日=${dueDate}, 今天=${today}, 是否到期=${isDue}`);
+    return isDue;
+  });
+  
+  console.log('getCardsToLearn: 篩選後卡片數量:', filtered.length);
+  
+  return filtered.sort((a, b) => {
+    // 新卡片優先（repetitions = 0）
+    const aIsNew = !a.sm2 || a.sm2.repetitions === 0;
+    const bIsNew = !b.sm2 || b.sm2.repetitions === 0;
+    
+    if (aIsNew && !bIsNew) return -1;
+    if (!aIsNew && bIsNew) return 1;
+    
+    // 如果都是學習過的卡片，優先顯示需要複習的卡片（忘記的）
+    if (!aIsNew && !bIsNew) {
+      if (a.sm2.isMistake && !b.sm2.isMistake) return -1;
+      if (!a.sm2.isMistake && b.sm2.isMistake) return 1;
+      // 比較到期日期，較早到期的排在前面
+      const aDate = new Date(a.sm2.dueDate || '1970-01-01');
+      const bDate = new Date(b.sm2.dueDate || '1970-01-01');
+      return aDate.getTime() - bDate.getTime();
+    }
+    
+    return 0; // 都是新卡片時保持原順序
+  });
 };
 
 // 計算學習統計

@@ -8,48 +8,35 @@ window.INITIAL_SM2_PARAMS = {
   isMistake: false // 是否需要複習（忘記了）
 };
 
-// 初始 AWS 服務閃卡資料
-window.initialAwsCards = [
-  {
-    question: "Amazon Bedrock 的護欄功能 (Guardrails) 有什麼作用？",
-    answer: "護欄功能可以確保生成的內容和主題適合兒童，並進行內容過濾以防止模型在回應中包含患者個人資訊或違反政策，並可設定警報。",
-    category: "Amazon Bedrock",
-    difficulty: "中等",
-    sm2: {
-      interval: 0,
-      repetitions: 0,
-      easiness: 2.5,
-      nextReview: new Date().toISOString(),
-      dueDate: new Date().toISOString().split('T')[0],
-      isMistake: false
-    }
-  },
-  {
-    question: "Amazon Bedrock 可以用來建立什麼樣的互動應用程式？",
-    answer: "可以建立互動應用程式，根據經典故事生成適合兒童的故事。",
-    category: "Amazon Bedrock",
-    difficulty: "簡單",
-    sm2: {
-      interval: 0,
-      repetitions: 0,
-      easiness: 2.5,
-      nextReview: new Date().toISOString(),
-      dueDate: new Date().toISOString().split('T')[0],
-      isMistake: false
-    }
-  },
-  {
-    question: "Amazon Bedrock 的主要用途是什麼？",
-    answer: "運行基礎模型 (FM)，並確保只有授權使用者可以調用模型。",
-    category: "Amazon Bedrock",
-    difficulty: "簡單",
-    sm2: {
-      interval: 0,
-      repetitions: 0,
-      easiness: 2.5,
-      nextReview: new Date().toISOString(),
-      dueDate: new Date().toISOString().split('T')[0],
-      isMistake: false
-    }
+// 工具函數：為卡片添加 SM2 初始參數
+window.initializeCardSM2 = (card) => {
+  return {
+    ...card,
+    id: card.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // 添加唯一ID
+    sm2: { ...window.INITIAL_SM2_PARAMS }
+  };
+};
+
+// 工具函數：初始化卡片陣列
+window.initializeCards = (cardsData) => {
+  return cardsData.map(card => window.initializeCardSM2(card));
+};
+
+// 取得初始化後的 AWS 卡片資料（延遲載入）
+window.getInitialAwsCards = () => {
+  // 確保 awsCardsData 已載入
+  if (window.awsCardsData) {
+    return window.initializeCards(window.awsCardsData);
   }
-]; 
+  // 回退：如果資料尚未載入，返回空陣列
+  console.warn('awsCardsData 尚未載入，返回空陣列');
+  return [];
+};
+
+// 用 getter 來確保每次都動態取得最新資料
+Object.defineProperty(window, 'initialAwsCards', {
+  get: function() {
+    return window.getInitialAwsCards();
+  },
+  configurable: true
+}); 

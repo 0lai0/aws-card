@@ -10,16 +10,35 @@ window.useProjects = () => {
   // 從 localStorage 載入專案
   useEffect(() => {
     try {
+      console.log('useProjects: 開始載入專案');
       const storedProjects = window.loadProjectsFromStorage();
-      if (storedProjects) {
+      if (storedProjects && storedProjects.length > 0) {
+        console.log('useProjects: 從 localStorage 載入了', storedProjects.length, '個專案');
         setProjects(storedProjects);
       } else {
         // 創建默認 AWS 專案
+        console.log('useProjects: 創建默認 AWS 專案');
         const defaultProject = window.createDefaultProject();
-        setProjects([defaultProject]);
+        console.log('useProjects: 預設專案卡片數量:', defaultProject?.cards?.length || 0);
+        if (defaultProject) {
+          setProjects([defaultProject]);
+        } else {
+          console.error('useProjects: 無法創建預設專案');
+          setProjects([]);
+        }
       }
     } catch (error) {
       console.error("Failed to load projects:", error);
+      // 即使失敗也要嘗試創建預設專案
+      try {
+        const defaultProject = window.createDefaultProject();
+        if (defaultProject) {
+          setProjects([defaultProject]);
+        }
+      } catch (fallbackError) {
+        console.error("Failed to create default project:", fallbackError);
+        setProjects([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -28,6 +47,18 @@ window.useProjects = () => {
   // 儲存專案到 localStorage
   useEffect(() => {
     if (!loading) {
+      console.log('useProjects: 儲存', projects.length, '個專案到 localStorage');
+      
+      // 如果沒有專案，自動創建預設專案
+      if (projects.length === 0) {
+        console.log('useProjects: 沒有專案，創建預設專案');
+        const defaultProject = window.createDefaultProject();
+        if (defaultProject) {
+          setProjects([defaultProject]);
+          return; // 不要儲存空陣列，等待下次 effect 儲存新專案
+        }
+      }
+      
       window.saveProjectsToStorage(projects);
     }
   }, [projects, loading]);
@@ -37,6 +68,7 @@ window.useProjects = () => {
     if (currentProject) {
       const project = projects.find(p => p.id === currentProject.id);
       if (project) {
+        console.log('useProjects: 設定當前專案卡片數量:', project.cards?.length || 0);
         setCards(project.cards || []);
       }
     }

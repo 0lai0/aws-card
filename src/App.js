@@ -20,11 +20,24 @@ window.App = () => {
     currentCardIndex,
     showAnswer,
     toggleAnswer,
-    handleAnswer
+    handleAnswer,
+    resetLearning,
+    isRandomMode,
+    toggleRandomMode,
+    reshuffleCards,
+    restartAllCards,
+    isAllLearningCompleted
   } = window.useLearning(currentProject?.cards || [], updateCardSM2);
 
+  // 當專案變更時重置學習狀態
+  window.React.useEffect(() => {
+    if (resetLearning) {
+      resetLearning();
+    }
+  }, [currentProject, resetLearning]);
+
   // 鍵盤事件處理
-  window.useKeyboardEvents(mode, toggleAnswer, handleAnswer, showAnswer);
+  window.useKeyboardEvents(mode, toggleAnswer, handleAnswer, showAnswer, toggleRandomMode, reshuffleCards);
 
   // 回饋訊息自動清除
   window.React.useEffect(() => {
@@ -75,7 +88,12 @@ window.App = () => {
           currentCardIndex,
           showAnswer,
           toggleAnswer,
-          handleAnswer
+          handleAnswer,
+          isRandomMode,
+          toggleRandomMode,
+          reshuffleCards,
+          restartAllCards,
+          isAllLearningCompleted
         });
       case 'manage':
         return window.React.createElement(window.ManageView, {

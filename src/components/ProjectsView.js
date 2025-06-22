@@ -42,7 +42,14 @@ window.ProjectsView = ({
 
   const handleDeleteProject = (projectId) => {
     if (window.confirm('您確定要刪除這個專案嗎？此操作不可逆！')) {
-      setProjects(prev => prev.filter(p => p.id !== projectId));
+      setProjects(prev => {
+        const newProjects = prev.filter(p => p.id !== projectId);
+        
+        // 如果刪除的是當前專案，清除當前專案選擇
+        setCurrentProject(null);
+        
+        return newProjects;
+      });
       setFeedbackMessage('專案已刪除。');
     }
   };

@@ -32,8 +32,13 @@
     <div id="root"></div>
 
     <!-- 按順序載入模組化檔案 -->
+    <!-- 資料集 -->
+    <script type="text/babel" src="src/data/awsCards.js"></script>
+    <script type="text/babel" src="src/data/webDevCards.js"></script>
+    
     <!-- 工具函數和常數 -->
     <script type="text/babel" src="src/utils/constants.js"></script>
+    <script type="text/babel" src="src/utils/datasetManager.js"></script>
     <script type="text/babel" src="src/utils/sm2Algorithm.js"></script>
     <script type="text/babel" src="src/utils/projectUtils.js"></script>
     <script type="text/babel" src="src/utils/chartUtils.js"></script>
@@ -56,6 +61,31 @@
 
     <!-- 渲染應用程式 -->
     <script type="text/babel">
+        // 檢查所有必要的函數是否已載入
+        function checkDependencies() {
+            const required = [
+                'awsCardsData',
+                'webDevCardsData', 
+                'INITIAL_SM2_PARAMS',
+                'DatasetManager',
+                'getCardsToLearn',
+                'createDefaultProject',
+                'useProjects',
+                'useLearning',
+                'App'
+            ];
+            
+            const missing = required.filter(name => !window[name]);
+            
+            if (missing.length > 0) {
+                console.error('缺少以下依賴項:', missing);
+                return false;
+            }
+            
+            console.log('所有依賴項已成功載入');
+            return true;
+        }
+
         // 簡單版本的 App 來測試基本功能
         const SimpleApp = () => {
             return React.createElement('div', {
@@ -76,28 +106,38 @@
                         React.createElement('p', {
                             className: "text-xl text-gray-700 mb-4",
                             key: "status"
-                        }, '✅ 系統載入成功！'),
+                        }, '❌ 載入失敗！某些模組未正確載入。'),
                         React.createElement('p', {
                             className: "text-gray-600",
                             key: "desc"
-                        }, '這表示 React 和基本 CSS 都正常工作。')
+                        }, '請檢查瀏覽器控制台中的錯誤信息。'),
+                        React.createElement('button', {
+                            onClick: checkDependencies,
+                            className: "btn btn-primary mt-4",
+                            key: "check-btn"
+                        }, '檢查依賴項')
                     ])
                 ])
             ]);
         };
         
-        // 渲染簡化版應用程式
+        // 渲染應用程式
         const { createRoot } = ReactDOM;
         const root = createRoot(document.getElementById('root'));
         
-        // 檢查是否有完整的 App 組件
-        if (typeof window.App === 'function') {
-            console.log('載入完整版 App');
-            root.render(React.createElement(window.App));
-        } else {
-            console.log('載入簡化版 App - 某些組件或 hooks 可能未正確載入');
-            root.render(React.createElement(SimpleApp));
-        }
+        // 延遲一點時間讓所有模組載入完成
+        setTimeout(() => {
+            // 檢查是否有完整的 App 組件和所有依賴
+            if (checkDependencies() && typeof window.App === 'function') {
+                console.log('載入完整版 App');
+                console.log('AWS 卡片數據長度:', window.awsCardsData?.length || 0);
+                console.log('DatasetManager 可用:', !!window.DatasetManager);
+                root.render(React.createElement(window.App));
+            } else {
+                console.log('載入簡化版 App - 某些組件或 hooks 未正確載入');
+                root.render(React.createElement(SimpleApp));
+            }
+        }, 100); // 延遲 100ms 讓模組載入完成
     </script>
 </body>
 </html>

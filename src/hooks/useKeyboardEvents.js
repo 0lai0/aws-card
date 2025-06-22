@@ -1,7 +1,7 @@
 const { useEffect } = React;
 
 // 鍵盤事件處理 Hook
-window.useKeyboardEvents = (mode, toggleAnswer, handleAnswer, showAnswer) => {
+window.useKeyboardEvents = (mode, toggleAnswer, handleAnswer, showAnswer, toggleRandomMode, reshuffleCards) => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (mode !== 'learn') return;
@@ -23,6 +23,18 @@ window.useKeyboardEvents = (mode, toggleAnswer, handleAnswer, showAnswer) => {
         } else {
           toggleAnswer();
         }
+      } else if (event.key === 'r' || event.key === 'R') {
+        // R 鍵切換隨機模式
+        event.preventDefault();
+        if (toggleRandomMode) {
+          toggleRandomMode();
+        }
+      } else if (event.key === 's' || event.key === 'S') {
+        // S 鍵重新洗牌
+        event.preventDefault();
+        if (reshuffleCards) {
+          reshuffleCards();
+        }
       }
     };
 
@@ -30,5 +42,5 @@ window.useKeyboardEvents = (mode, toggleAnswer, handleAnswer, showAnswer) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [mode, toggleAnswer, handleAnswer, showAnswer]);
+  }, [mode, toggleAnswer, handleAnswer, showAnswer, toggleRandomMode, reshuffleCards]);
 }; 
